@@ -161,6 +161,13 @@
 
         .btn:hover {
             opacity: 0.8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            animation: pulse 0.3s ease;
         }
 
         .btn-secondary {
@@ -185,7 +192,7 @@
             display: flex;
             flex-direction: column;
             max-width: 85%;
-            animation: fadeIn 0.3s ease;
+            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
@@ -580,9 +587,25 @@
             font-weight: 600;
         }
 
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(15px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         @keyframes typing {
