@@ -897,8 +897,10 @@
 
             autoResize() {
                 const input = document.getElementById('messageInput');
-                input.style.height = 'auto';
-                input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+                requestAnimationFrame(() => {
+                    input.style.height = 'auto';
+                    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+                });
             }
 
             async checkConnection() {
@@ -1304,9 +1306,9 @@
 
             scrollToBottom() {
                 const container = document.getElementById('chatContainer');
-                setTimeout(() => {
+                requestAnimationFrame(() => {
                     container.scrollTop = container.scrollHeight;
-                }, 10);
+                });
             }
 
             updateEmptyState() {
