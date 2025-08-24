@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -1592,4 +1593,1613 @@
         }
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>LM Studio Client</title>
+    <meta name="version" content="v1.4.0">
+    <meta name="version" content="v1.3.1">
+    <meta name="version" content="v1.3.0">
+    <meta name="version" content="v1.2.0">
+    <meta name="version" content="v1.1.1">
+    <meta name="version" content="v1.1.0">
+    <meta name="theme-color" content="#2196F3">
+    <link rel="manifest" href="data:application/json,{
+        'name': 'LM Studio Client',
+        'short_name': 'LMStudio',
+        'description': 'Lightweight client for LM Studio',
+        'start_url': '/',
+        'display': 'standalone',
+        'orientation': 'portrait',
+        'theme_color': '#2196F3',
+        'background_color': '#1a1a1a',
+        'icons': [
+            {
+                'src': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSI2NCIgZmlsbD0iIzIxOTZGMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIwIiBmaWxsPSJ3aGl0ZSI+TFM8L3RleHQ+PC9zdmc+',
+                'sizes': '512x512',
+                'type': 'image/svg+xml'
+            }
+        ]
+    }">
+    
+    <!-- Marked.js для качественного markdown рендеринга -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-message-user: #2196F3;
+            --bg-message-bot: #3d3d3d;
+            --bg-thinking: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-thinking: #ffa726;
+            --border: #404040;
+            --accent: #2196F3;
+            --danger: #f44336;
+            --success: #4caf50;
+            --copy-btn: #555555;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-message-user: #2196F3;
+            --bg-message-bot: #e3e3e3;
+            --bg-thinking: #f0f0f0;
+            --text-primary: #212121;
+            --text-secondary: #666666;
+            --text-thinking: #e65100;
+            --border: #e0e0e0;
+            --accent: #2196F3;
+            --danger: #f44336;
+            --success: #4caf50;
+            --copy-btn: #9e9e9e;
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height для мобильных */
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        .app {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            min-height: 50px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0; /* Для корректного overflow */
+        }
+
+        .connection-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+
+        .connection-status.connected {
+            background: var(--success);
+        }
+
+        .model-selector {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            min-width: 0;
+            max-width: 120px;
+            text-overflow: ellipsis;
+        }
+
+        .stats {
+            display: flex;
+            gap: 8px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            animation: pulse 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 5px 9px;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling на iOS */
+        }
+
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .message-wrapper.user {
+            align-self: flex-end;
+        }
+
+        .message-wrapper.assistant {
+            align-self: flex-start;
+        }
+
+        .message-wrapper.system {
+            align-self: center;
+            max-width: 70%;
+        }
+
+        .message {
+            padding: 10px 14px;
+            border-radius: 16px;
+            position: relative;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .message.user {
+            background: var(--bg-message-user);
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.assistant {
+            background: var(--bg-message-bot);
+            border-bottom-left-radius: 6px;
+        }
+
+        .message.system {
+            background: var(--bg-secondary);
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-radius: 12px;
+            padding: 6px 12px;
+            text-align: center;
+        }
+
+        .thinking-block {
+            background: var(--bg-thinking);
+            border: 1px solid #444;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .thinking-header {
+            background: #333;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text-thinking);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .thinking-header:hover {
+            background: #3a3a3a;
+        }
+
+        .thinking-content {
+            padding: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.3;
+        }
+
+        .thinking-content.expanded {
+            display: block;
+        }
+
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-thinking);
+            font-size: 12px;
+            padding: 8px 12px;
+            background: var(--bg-thinking);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .message-wrapper:hover .message-actions {
+            opacity: 1;
+        }
+
+        .copy-btn {
+            background: var(--copy-btn);
+            border: none;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 2px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .copy-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        .copy-btn.copied::after {
+            transform: translateX(100%);
+        }
+
+        .streaming-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--accent);
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        .input-area {
+            background: var(--bg-secondary);
+            padding: 10px 12px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            /* Фиксация клавиатуры на мобильных */
+            position: sticky;
+            bottom: 0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            max-width: 100%;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+        }
+
+        .message-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            resize: none;
+            min-height: 40px;
+            max-height: 100px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .message-input:focus {
+            border-color: var(--accent);
+        }
+
+        .send-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            opacity: 0.8;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 20px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* Улучшенные стили для markdown */
+        .message h1, .message h2, .message h3, .message h4, .message h5, .message h6 {
+            margin: 16px 0 8px 0;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .message h1 { font-size: 1.4em; }
+        .message h2 { font-size: 1.3em; }
+        .message h3 { font-size: 1.2em; }
+        .message h4 { font-size: 1.1em; }
+
+        .message p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .message code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .message pre {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+            border-left: 3px solid var(--accent);
+        }
+
+        .message pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .message blockquote {
+            border-left: 3px solid var(--accent);
+            padding-left: 12px;
+            margin: 12px 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .message ul, .message ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .message li {
+            margin: 4px 0;
+        }
+
+        .message strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .message em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .message table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+        }
+
+        .message th, .message td {
+            border: 1px solid var(--border);
+            padding: 8px;
+            text-align: left;
+        }
+
+        .message th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .chevron {
+            transition: transform 0.2s;
+            font-size: 10px;
+        }
+
+        .chevron.expanded {
+            transform: rotate(90deg);
+        }
+
+        /* Toast уведомления */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Мобильные оптимизации */
+        @media (max-width: 768px) {
+            .header {
+                padding: 8px 12px;
+                min-height: 48px;
+            }
+
+            .header-left {
+                gap: 8px;
+            }
+
+            .model-selector {
+                font-size: 11px;
+                max-width: 100px;
+            }
+
+            .stats {
+                font-size: 9px;
+                gap: 6px;
+            }
+
+            .btn {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+
+            .chat-container {
+                padding: 12px 16px;
+                gap: 12px;
+            }
+
+            .message-wrapper {
+                max-width: 90%;
+            }
+
+            .message {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .thinking-content {
+                font-size: 11px;
+                padding: 10px;
+            }
+
+            .input-area {
+                padding: 8px;
+            }
+
+            .message-input {
+                font-size: 16px; /* Предотвращает zoom на iOS */
+                padding: 8px 12px;
+            }
+
+            .send-btn {
+                width: 36px;
+                height: 36px;
+            }
+
+            .modal-content {
+                padding: 16px;
+                margin: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-wrap: wrap;
+                min-height: auto;
+            }
+
+            .stats {
+                order: 3;
+                width: 100%;
+                margin-top: 4px;
+                justify-content: center;
+            }
+
+            .message-wrapper {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-left">
+                <div class="connection-status" id="connectionStatus"></div>
+                <select class="model-selector" id="modelSelector">
+                    <option value="">Выбор модели...</option>
+                </select>
+                <div class="stats" id="stats">
+                    <span>Сообщений: 0</span>
+                    <span>Токенов: 0</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="toggleTheme()" id="themeBtn">🌙</button>
+                <button class="btn btn-secondary" onclick="showSettings()">⚙️</button>
+                <button class="btn btn-secondary" onclick="clearChat()">🗑️</button>
+                <button class="btn btn-secondary" onclick="exportChat()">📤</button>
+            </div>
+        </header>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="empty-state" id="emptyState">
+                <h2>LM Studio Client</h2>
+                <p>Настройте подключение к серверу и начните общение</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Введите сообщение..."
+                        disabled
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button class="send-btn" id="sendBtn" disabled onclick="sendMessage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Настройки</span>
+                <button class="btn btn-secondary" onclick="hideSettings()">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">IP адрес сервера</label>
+                <input type="text" class="form-input" id="serverHost" placeholder="192.168.31.100">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Порт</label>
+                <input type="number" class="form-input" id="serverPort" placeholder="1234">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Максимум токенов</label>
+                <input type="number" class="form-input" id="maxTokens" placeholder="2048">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Температура</label>
+                <input type="number" class="form-input" id="temperature" placeholder="0.7" step="0.1" min="0" max="2">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideSettings()">Отмена</button>
+                <button class="btn" onclick="saveSettings()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация Marked.js
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                sanitize: false,
+                smartLists: true,
+                smartypants: true
+            });
+        }
+
+        class LMStudioClient {
+            constructor() {
+                this.config = {
+                    host: '192.168.31.100',
+                    port: '1234',
+                    maxTokens: 2048,
+                    temperature: 0.7
+                };
+                this.messages = [];
+                this.models = [];
+                this.currentModel = '';
+                this.isConnected = false;
+                this.isLoading = false;
+                this.conversationStats = { tokens: 0, messages: 0 };
+                this.streamingMessageId = null;
+                
+                this.loadConfig();
+                this.loadHistory();
+                this.bindEvents();
+                this.checkConnection();
+                this.autoResize();
+            }
+
+            loadConfig() {
+                const saved = localStorage.getItem('lmstudio-config');
+                if (saved) {
+                    this.config = { ...this.config, ...JSON.parse(saved) };
+                }
+                
+                // Восстанавливаем выбранную модель
+                const savedModel = localStorage.getItem('lmstudio-selected-model');
+                if (savedModel) {
+                    this.currentModel = savedModel;
+                }
+                
+                this.updateConfigUI();
+            }
+
+            saveConfig() {
+                localStorage.setItem('lmstudio-config', JSON.stringify(this.config));
+                // Сохраняем выбранную модель
+                if (this.currentModel) {
+                    localStorage.setItem('lmstudio-selected-model', this.currentModel);
+                }
+            }
+
+            loadHistory() {
+                const saved = localStorage.getItem('lmstudio-history');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.messages = data.messages || [];
+                    this.conversationStats = data.stats || { tokens: 0, messages: 0 };
+                    this.renderMessages();
+                    this.updateStats();
+                }
+                this.updateEmptyState();
+            }
+
+            saveHistory() {
+                const data = {
+                    messages: this.messages,
+                    stats: this.conversationStats
+                };
+                localStorage.setItem('lmstudio-history', JSON.stringify(data));
+            }
+
+            bindEvents() {
+                const input = document.getElementById('messageInput');
+                const sendBtn = document.getElementById('sendBtn');
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                input.addEventListener('input', () => {
+                    this.autoResize();
+                    sendBtn.disabled = !input.value.trim() || this.isLoading || !this.isConnected;
+                });
+
+                document.getElementById('modelSelector').addEventListener('change', (e) => {
+                    this.currentModel = e.target.value;
+                    // Сохраняем выбранную модель
+                    if (this.currentModel) {
+                        localStorage.setItem('lmstudio-selected-model', this.currentModel);
+                    }
+                });
+
+                // Auto-reconnect
+                setInterval(() => this.checkConnection(), 30000);
+            }
+
+            autoResize() {
+                const input = document.getElementById('messageInput');
+                requestAnimationFrame(() => {
+                    input.style.height = 'auto';
+                    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+                });
+            }
+
+            async checkConnection() {
+                try {
+                    const response = await fetch(`http://${this.config.host}:${this.config.port}/v1/models`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.models = data.data || [];
+                        this.updateModels();
+                        this.setConnected(true);
+                    } else {
+                        this.setConnected(false);
+                    }
+                } catch (error) {
+                    this.setConnected(false);
+                }
+            }
+
+            setConnected(status) {
+                this.isConnected = status;
+                const statusEl = document.getElementById('connectionStatus');
+                const input = document.getElementById('messageInput');
+                const sendBtn = document.getElementById('sendBtn');
+                
+                statusEl.className = `connection-status ${status ? 'connected' : ''}`;
+                input.disabled = !status;
+                sendBtn.disabled = !status || this.isLoading || !input.value.trim();
+                
+                if (status) {
+                    input.placeholder = 'Введите сообщение...';
+                } else {
+                    input.placeholder = 'Нет подключения к серверу';
+                }
+            }
+
+            updateModels() {
+                const selector = document.getElementById('modelSelector');
+                selector.innerHTML = '<option value="">Выбор модели...</option>';
+                
+                this.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.id;
+                    option.textContent = model.id;
+                    selector.appendChild(option);
+                });
+
+                // Восстанавливаем сохраненную модель или выбираем первую доступную
+                if (this.currentModel && this.models.find(m => m.id === this.currentModel)) {
+                    // Восстанавливаем ранее выбранную модель, если она доступна
+                    selector.value = this.currentModel;
+                } else if (this.models.length > 0) {
+                    // Выбираем первую доступную модель
+                    this.currentModel = this.models[0].id;
+                    selector.value = this.currentModel;
+                    localStorage.setItem('lmstudio-selected-model', this.currentModel);
+                }
+            }
+
+            updateStats() {
+                const statsEl = document.getElementById('stats');
+                statsEl.innerHTML = `
+                    <span>Сообщений: ${this.conversationStats.messages}</span>
+                    <span>Токенов: ${this.conversationStats.tokens}</span>
+                `;
+            }
+
+            async sendMessage() {
+                const input = document.getElementById('messageInput');
+                const message = input.value.trim();
+                
+                if (!message || !this.isConnected || this.isLoading) return;
+
+                input.value = '';
+                this.autoResize();
+                this.setLoading(true);
+
+                // Add user message
+                this.addMessage('user', message);
+                
+                // Create assistant message placeholder
+                const assistantMessageId = Date.now();
+                this.streamingMessageId = assistantMessageId;
+                
+                this.addStreamingMessage(assistantMessageId);
+
+                try {
+                    const response = await fetch(`http://${this.config.host}:${this.config.port}/v1/chat/completions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: this.currentModel,
+                            messages: this.messages.filter(m => m.role !== 'system').map(m => ({
+                                role: m.role,
+                                content: m.content
+                            })),
+                            max_tokens: parseInt(this.config.maxTokens),
+                            temperature: parseFloat(this.config.temperature),
+                            stream: true
+                        })
+                    });
+
+                    if (response.ok) {
+                        await this.handleStreamResponse(response, assistantMessageId);
+                    } else {
+                        this.removeStreamingMessage(assistantMessageId);
+                        this.addMessage('system', `Ошибка: ${response.status} ${response.statusText}`);
+                    }
+                } catch (error) {
+                    this.removeStreamingMessage(assistantMessageId);
+                    this.addMessage('system', `Ошибка подключения: ${error.message}`);
+                }
+
+                this.streamingMessageId = null;
+                this.setLoading(false);
+            }
+
+            async handleStreamResponse(response, messageId) {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                let content = '';
+                let reasoning = '';
+                let tokenCount = 0;
+                let isThinking = false;
+
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n');
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const data = line.substring(6).trim();
+                                if (data === '[DONE]') continue;
+                                
+                                try {
+                                    const parsed = JSON.parse(data);
+                                    const delta = parsed.choices?.[0]?.delta;
+                                    
+                                    if (delta) {
+                                        if (delta.reasoning) {
+                                            reasoning += delta.reasoning;
+                                            this.updateStreamingThinking(messageId, reasoning);
+                                        } else if (delta.content) {
+                                            if (delta.content.includes('<think>')) {
+                                                isThinking = true;
+                                                let thinkContent = delta.content.replace('<think>', '');
+                                                if (thinkContent.includes('</think>')) {
+                                                    isThinking = false;
+                                                    thinkContent = thinkContent.replace('</think>', '');
+                                                }
+                                                reasoning += thinkContent;
+                                                this.updateStreamingThinking(messageId, reasoning);
+                                            } else if (delta.content.includes('</think>')) {
+                                                isThinking = false;
+                                                const thinkContent = delta.content.replace('</think>', '');
+                                                reasoning += thinkContent;
+                                                this.updateStreamingThinking(messageId, reasoning);
+                                            } else if (isThinking) {
+                                                reasoning += delta.content;
+                                                this.updateStreamingThinking(messageId, reasoning);
+                                            } else {
+                                                content += delta.content;
+                                                this.updateStreamingMessage(messageId, content, reasoning.length > 0);
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (parsed.usage) {
+                                        tokenCount = parsed.usage.total_tokens || 0;
+                                    }
+                                    
+                                    if (parsed.choices?.[0]?.finish_reason && !tokenCount) {
+                                        tokenCount = -1; // флаг для fallback
+                                    }
+                                } catch (e) {
+                                    console.warn('Failed to parse SSE data:', data);
+                                }
+                            }
+                        }
+                    }
+                } finally {
+                    reader.releaseLock();
+                }
+
+                this.finalizeStreamingMessage(messageId, content, reasoning, tokenCount);
+            }
+
+            addStreamingMessage(messageId) {
+                const container = document.getElementById('chatContainer');
+                
+                const wrapperEl = document.createElement('div');
+                wrapperEl.className = 'message-wrapper assistant';
+                wrapperEl.id = `msg-${messageId}`;
+                
+                wrapperEl.innerHTML = `
+                    <div class="thinking-indicator" id="thinking-${messageId}" style="display: none;">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span>Размышляет...</span>
+                    </div>
+                    <div class="thinking-block" id="thinking-block-${messageId}" style="display: none;">
+                        <div class="thinking-header" onclick="toggleThinking('${messageId}')">
+                            <span class="chevron">▶</span>
+                            <span>Ход мыслей</span>
+                        </div>
+                        <div class="thinking-content" id="thinking-content-${messageId}"></div>
+                    </div>
+                    <div class="message assistant" id="content-${messageId}">
+                        <span class="streaming-cursor"></span>
+                    </div>
+                    <div class="message-actions">
+                        <button class="copy-btn" onclick="copyMessage('${messageId}')">Копировать</button>
+                    </div>
+                `;
+                
+                container.appendChild(wrapperEl);
+                this.scrollToBottom();
+            }
+
+            updateStreamingThinking(messageId, thinking) {
+                const thinkingIndicator = document.getElementById(`thinking-${messageId}`);
+                const thinkingBlock = document.getElementById(`thinking-block-${messageId}`);
+                const thinkingContent = document.getElementById(`thinking-content-${messageId}`);
+                
+                if (thinkingIndicator) {
+                    thinkingIndicator.style.display = 'flex';
+                }
+                
+                if (thinkingContent) {
+                    thinkingContent.textContent = thinking;
+                    if (thinkingBlock) {
+                        thinkingBlock.style.display = 'block';
+                    }
+                }
+            }
+
+            updateStreamingMessage(messageId, content, hasReasoning) {
+                const contentEl = document.getElementById(`content-${messageId}`);
+                const thinkingIndicator = document.getElementById(`thinking-${messageId}`);
+                
+                if (contentEl) {
+                    // Hide thinking indicator when content starts
+                    if (thinkingIndicator && content) {
+                        thinkingIndicator.style.display = 'none';
+                    }
+                    
+                    const renderedContent = this.renderMarkdown(content);
+                    contentEl.innerHTML = renderedContent + '<span class="streaming-cursor"></span>';
+                    this.scrollToBottom();
+                }
+            }
+
+            finalizeStreamingMessage(messageId, content, reasoning, tokenCount) {
+                const contentEl = document.getElementById(`content-${messageId}`);
+                const thinkingIndicator = document.getElementById(`thinking-${messageId}`);
+                
+                // Hide thinking indicator
+                if (thinkingIndicator) {
+                    thinkingIndicator.style.display = 'none';
+                }
+                
+                // Remove cursor and finalize content
+                if (contentEl) {
+                    contentEl.innerHTML = this.renderMarkdown(content || 'Пустой ответ');
+                }
+                
+                // Add to messages history
+                this.messages.push({
+                    role: 'assistant',
+                    content: content || 'Пустой ответ',
+                    reasoning: reasoning || null,
+                    timestamp: Date.now()
+                });
+                
+                // Update stats
+                this.conversationStats.messages += 2; // user + assistant
+                if (tokenCount > 0) {
+                    this.conversationStats.tokens += tokenCount;
+                } else if (tokenCount === -1) {
+                    // Fallback: примерный подсчет токенов (1 токен ≈ 4 символа)
+                    const estimatedTokens = Math.ceil((content.length + reasoning.length) / 4);
+                    this.conversationStats.tokens += estimatedTokens;
+                    console.log(`Token count not available, estimated: ${estimatedTokens}`);
+                }
+                
+                this.updateStats();
+                this.saveHistory();
+                this.updateEmptyState();
+            }
+
+            renderMarkdown(content) {
+                if (typeof marked !== 'undefined') {
+                    return marked.parse(content);
+                } else {
+                    // Fallback simple markdown
+                    return content
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/`([^`]*)`/g, '<code>$1</code>')
+                        .replace(/\n/g, '<br>');
+                }
+            }
+
+            extractTextContent(element) {
+                // Рекурсивно извлекает чистый текст из HTML элемента
+                if (typeof element === 'string') {
+                    return element;
+                }
+                
+                let text = '';
+                for (const node of element.childNodes) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        text += node.textContent;
+                    } else if (node.nodeType === Node.ELEMENT_NODE) {
+                        if (node.tagName === 'BR') {
+                            text += '\n';
+                        } else if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(node.tagName)) {
+                            text += '\n' + this.extractTextContent(node) + '\n';
+                        } else {
+                            text += this.extractTextContent(node);
+                        }
+                    }
+                }
+                return text;
+            }
+
+            removeStreamingMessage(messageId) {
+                const msgEl = document.getElementById(`msg-${messageId}`);
+                if (msgEl) {
+                    msgEl.remove();
+                }
+            }
+
+            addMessage(role, content) {
+                this.messages.push({
+                    role,
+                    content,
+                    timestamp: Date.now()
+                });
+                
+                this.renderMessage(this.messages[this.messages.length - 1]);
+                this.saveHistory();
+                this.updateEmptyState();
+                this.scrollToBottom();
+            }
+
+            renderMessages() {
+                const container = document.getElementById('chatContainer');
+                
+                // Clear except empty state
+                container.querySelectorAll('.message-wrapper').forEach(el => el.remove());
+                
+                this.messages.forEach(msg => this.renderMessage(msg));
+            }
+
+            renderMessage(message) {
+                const container = document.getElementById('chatContainer');
+                const messageId = message.timestamp || Date.now();
+                
+                const wrapperEl = document.createElement('div');
+                wrapperEl.className = `message-wrapper ${message.role}`;
+                wrapperEl.id = `msg-${messageId}`;
+                
+                if (message.role === 'assistant' && message.reasoning) {
+                    wrapperEl.innerHTML = `
+                        <div class="thinking-block">
+                            <div class="thinking-header" onclick="toggleThinking('${messageId}')">
+                                <span class="chevron">▶</span>
+                                <span>Ход мыслей</span>
+                            </div>
+                            <div class="thinking-content" id="thinking-content-${messageId}">
+                                ${message.reasoning}
+                            </div>
+                        </div>
+                        <div class="message ${message.role}">
+                            ${this.renderMarkdown(message.content)}
+                        </div>
+                        <div class="message-actions">
+                            <button class="copy-btn" onclick="copyMessage('${messageId}')">Копировать</button>
+                        </div>
+                    `;
+                } else {
+                    wrapperEl.innerHTML = `
+                        <div class="message ${message.role}">
+                            ${message.role === 'system' ? message.content : this.renderMarkdown(message.content)}
+                        </div>
+                        ${message.role !== 'system' ? `
+                            <div class="message-actions">
+                                <button class="copy-btn" onclick="copyMessage('${messageId}')">Копировать</button>
+                            </div>
+                        ` : ''}
+                    `;
+                }
+                
+                container.appendChild(wrapperEl);
+            }
+
+            setLoading(loading) {
+                this.isLoading = loading;
+                const sendBtn = document.getElementById('sendBtn');
+                const input = document.getElementById('messageInput');
+                
+                sendBtn.disabled = loading || !this.isConnected || !input.value.trim();
+            }
+
+            scrollToBottom() {
+                const container = document.getElementById('chatContainer');
+                requestAnimationFrame(() => {
+                    container.scrollTop = container.scrollHeight;
+                });
+            }
+
+            updateEmptyState() {
+                const emptyState = document.getElementById('emptyState');
+                emptyState.style.display = this.messages.length > 0 ? 'none' : 'flex';
+            }
+
+            updateConfigUI() {
+                document.getElementById('serverHost').value = this.config.host;
+                document.getElementById('serverPort').value = this.config.port;
+                document.getElementById('maxTokens').value = this.config.maxTokens;
+                document.getElementById('temperature').value = this.config.temperature;
+            }
+
+            clearChat() {
+                if (confirm('Очистить всю историю чата?')) {
+                    this.messages = [];
+                    this.conversationStats = { tokens: 0, messages: 0 };
+                    this.saveHistory();
+                    this.renderMessages();
+                    this.updateEmptyState();
+                    this.updateStats();
+                }
+            }
+
+            exportChat() {
+                const data = {
+                    config: this.config,
+                    messages: this.messages,
+                    stats: this.conversationStats,
+                    exportDate: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `lmstudio-chat-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Global functions for UI
+        let client;
+
+        function showSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function hideSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function saveSettings() {
+            client.config.host = document.getElementById('serverHost').value;
+            client.config.port = document.getElementById('serverPort').value;
+            client.config.maxTokens = parseInt(document.getElementById('maxTokens').value);
+            client.config.temperature = parseFloat(document.getElementById('temperature').value);
+            
+            client.saveConfig();
+            client.checkConnection();
+            hideSettings();
+        }
+
+        function clearChat() {
+            client.clearChat();
+        }
+
+        function exportChat() {
+            client.exportChat();
+        }
+
+        function sendMessage() {
+            client.sendMessage();
+        }
+
+        function toggleThinking(messageId) {
+            const content = document.getElementById(`thinking-content-${messageId}`);
+            const chevron = content?.parentElement?.querySelector('.chevron');
+            
+            if (content && chevron) {
+                if (content.classList.contains('expanded')) {
+                    content.classList.remove('expanded');
+                    chevron.classList.remove('expanded');
+                } else {
+                    content.classList.add('expanded');
+                    chevron.classList.add('expanded');
+                }
+            }
+        }
+
+        function showToast(message, type = 'success', duration = 3000) {
+            // Удаляем существующий toast если есть
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Создаем новый toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            // Добавляем в DOM
+            document.body.appendChild(toast);
+            
+            // Показываем с анимацией
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+            
+            // Скрываем через duration
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.getElementById('themeBtn');
+            
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            themeBtn.textContent = newTheme === 'light' ? '☀️' : '🌙';
+            
+            // Сохраняем тему
+            localStorage.setItem('app-theme', newTheme);
+        }
+
+        function copyMessage(messageId) {
+            const messageEl = document.querySelector(`#msg-${messageId} .message.assistant`) || 
+                             document.querySelector(`#msg-${messageId} .message.user`);
+            
+            if (!messageEl) return;
+            
+            // Извлекаем чистый текст без HTML тегов
+            const textContent = client.extractTextContent(messageEl);
+            const cleanText = textContent.replace(/\n\s*\n/g, '\n').trim();
+            
+            navigator.clipboard.writeText(cleanText).then(() => {
+                // Тактильный отклик
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+
+                // Показываем toast уведомление
+                const wordCount = cleanText.trim().split(/\s+/).length;
+                showToast(`✅ Скопировано ${wordCount} слов в буфер обмена`, 'success', 2500);
+                
+                // Анимация кнопки
+                const btn = document.querySelector(`#msg-${messageId} .copy-btn`);
+                if (btn) {
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅';
+                    btn.classList.add('copied');
+                    btn.style.transform = 'scale(1.1)';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('copied');
+                        btn.style.transform = 'scale(1)';
+                    }, 1500);
+                }
+            }).catch(err => {
+                console.error('Failed to copy text:', err);
+                
+                // Fallback для старых браузеров
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = cleanText;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-9999px';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    if (successful) {
+                        showToast('✅ Текст скопирован (fallback)', 'success', 2000);
+                    } else {
+                        showToast('❌ Не удалось скопировать текст', 'error', 3000);
+                    }
+                } catch (fallbackErr) {
+                    showToast('❌ Копирование не поддерживается', 'error', 3000);
+                }
+            });
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Восстанавливаем тему
+            const savedTheme = localStorage.getItem('app-theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            const themeBtn = document.getElementById('themeBtn');
+            if (themeBtn) {
+                themeBtn.textContent = savedTheme === 'light' ? '☀️' : '🌙';
+            }
+            
+            client = new LMStudioClient();
+        });
+
+        // Предотвращение случайной перезагрузки
+        window.addEventListener('beforeunload', (e) => {
+            if (client && client.isLoading) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:application/javascript,console.log("SW loaded")');
+        }
+    </script>
+</body>
+>>>>>>> 8ff8b5151b9ed61a5b45a64bcd5bb58298c4b161
 </html>
