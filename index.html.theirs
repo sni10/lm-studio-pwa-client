@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>LM Studio Client</title>
-    <meta name="version" content="v1.3.1">
     <meta name="version" content="v1.3.0">
     <meta name="version" content="v1.2.0">
     <meta name="version" content="v1.1.1">
@@ -612,13 +611,13 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(15px) scale(0.95);
+            from { 
+                opacity: 0; 
+                transform: translateY(15px) scale(0.95); 
             }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
             }
         }
 
@@ -1085,7 +1084,6 @@
                 let content = '';
                 let reasoning = '';
                 let tokenCount = 0;
-                let isThinking = false;
 
                 try {
                     while (true) {
@@ -1105,39 +1103,27 @@
                                     const delta = parsed.choices?.[0]?.delta;
                                     
                                     if (delta) {
+                                        // Handle reasoning (thinking process)
                                         if (delta.reasoning) {
                                             reasoning += delta.reasoning;
                                             this.updateStreamingThinking(messageId, reasoning);
-                                        } else if (delta.content) {
-                                            if (delta.content.includes('<think>')) {
-                                                isThinking = true;
-                                                let thinkContent = delta.content.replace('<think>', '');
-                                                if (thinkContent.includes('</think>')) {
-                                                    isThinking = false;
-                                                    thinkContent = thinkContent.replace('</think>', '');
-                                                }
-                                                reasoning += thinkContent;
-                                                this.updateStreamingThinking(messageId, reasoning);
-                                            } else if (delta.content.includes('</think>')) {
-                                                isThinking = false;
-                                                const thinkContent = delta.content.replace('</think>', '');
-                                                reasoning += thinkContent;
-                                                this.updateStreamingThinking(messageId, reasoning);
-                                            } else if (isThinking) {
-                                                reasoning += delta.content;
-                                                this.updateStreamingThinking(messageId, reasoning);
-                                            } else {
-                                                content += delta.content;
-                                                this.updateStreamingMessage(messageId, content, reasoning.length > 0);
-                                            }
+                                        }
+                                        
+                                        // Handle main content
+                                        if (delta.content) {
+                                            content += delta.content;
+                                            this.updateStreamingMessage(messageId, content, reasoning.length > 0);
                                         }
                                     }
                                     
+                                    // Update token count from usage stats
                                     if (parsed.usage) {
                                         tokenCount = parsed.usage.total_tokens || 0;
                                     }
                                     
+                                    // Если это финальный chunk с finish_reason, но нет usage - делаем fallback запрос
                                     if (parsed.choices?.[0]?.finish_reason && !tokenCount) {
+                                        // Отмечаем что нужно получить токены отдельным запросом
                                         tokenCount = -1; // флаг для fallback
                                     }
                                 } catch (e) {
@@ -1150,6 +1136,7 @@
                     reader.releaseLock();
                 }
 
+                // Finalize message and update stats
                 this.finalizeStreamingMessage(messageId, content, reasoning, tokenCount);
             }
 
