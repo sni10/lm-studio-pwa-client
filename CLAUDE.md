@@ -35,6 +35,33 @@ The app connects to LM Studio API server with default settings:
 
 Configuration is stored in localStorage and persists between sessions.
 
+## Development Workflow
+
+### Branch Structure (GitFlow)
+- **main**: Production-ready code with automatic releases
+- **develop**: Integration branch for features
+- **feature/**: Feature development branches
+- **hotfix/**: Emergency fixes for production
+
+### Commands
+- `npm start`: Start development server with auto-open
+- `npm test`: Run tests in browser
+- `npm run serve`: Start server without opening browser
+
+### Testing
+- Browser-based testing with Mocha/Chai
+- Tests located in `/tests/` directory
+- Run tests: Open `http://localhost:8080/tests/` after `npm run serve`
+
+### Versioning & Releases
+- Automatic versioning based on commit messages:
+  - `feat:` or `feature:` → Minor version bump
+  - `fix:` → Patch version bump  
+  - `BREAKING CHANGE` or `!:` → Major version bump
+- Releases created automatically on main branch pushes
+- Tags follow semantic versioning: `vX.Y.Z`
+- GitHub Pages deployment on release
+
 ## Development Notes
 
 - No build process required - it's a single HTML file with embedded CSS and JavaScript

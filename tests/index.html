@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>LM Studio PWA Tests</title>
+    <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
+</head>
+<body>
+    <div id="mocha"></div>
+
+    <script src="https://unpkg.com/chai/chai.js"></script>
+    <script src="https://unpkg.com/mocha/mocha.js"></script>
+
+    <script class="mocha-init">
+        mocha.setup('bdd');
+        const expect = chai.expect;
+    </script>
+
+    <!-- Load app code for testing -->
+    <script>
+        // Extract LMStudioClient class from the main HTML file for testing
+        // This is a simplified version for testing purposes
+        class LMStudioClientTest {
+            constructor() {
+                this.config = {
+                    host: '192.168.31.100',
+                    port: '1234',
+                    maxTokens: 2048,
+                    temperature: 0.7
+                };
+                this.messages = [];
+                this.models = [];
+                this.currentModel = '';
+                this.isConnected = false;
+                this.conversationStats = { tokens: 0, messages: 0 };
+            }
+
+            renderMarkdown(content) {
+                return content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`([^`]*)`/g, '<code>$1</code>')
+                    .replace(/\n/g, '<br>');
+            }
+
+            updateStats() {
+                return `Сообщений: ${this.conversationStats.messages}, Токенов: ${this.conversationStats.tokens}`;
+            }
+
+            estimateTokens(text) {
+                return Math.ceil(text.length / 4);
+            }
+        }
+        window.LMStudioClientTest = LMStudioClientTest;
+    </script>
+
+    <!-- Test files -->
+    <script src="client.test.js"></script>
+    <script src="utils.test.js"></script>
+
+    <script class="mocha-exec">
+        mocha.run();
+    </script>
+</body>
+</html>

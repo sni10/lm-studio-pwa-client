@@ -1,0 +1,71 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm install -g http-server
+        
+    - name: Start test server
+      run: |
+        http-server . -p 8080 &
+        sleep 3
+        
+    - name: Run tests
+      run: |
+        # Install Playwright for browser testing
+        npx playwright install chromium
+        
+        # Create simple test runner
+        cat > test-runner.js << 'EOF'
+        const { chromium } = require('playwright');
+        
+        (async () => {
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+          
+          // Navigate to test page
+          await page.goto('http://localhost:8080/tests/');
+          
+          // Wait for tests to complete
+          await page.waitForSelector('#mocha .stats');
+          
+          // Get test results
+          const stats = await page.$eval('#mocha .stats', el => el.textContent);
+          const failures = await page.$eval('#mocha .failures', el => el ? el.children.length : 0);
+          
+          console.log('Test Results:', stats);
+          
+          await browser.close();
+          
+          if (failures > 0) {
+            process.exit(1);
+          }
+        })();
+        EOF
+        
+        npx playwright install
+        node test-runner.js
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: test-results/
