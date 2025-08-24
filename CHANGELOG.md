@@ -1,0 +1,5 @@
+* chore(release): bump to v1.3.0 (a65482e)
+* Merge pull request #6 from sni10/dev (b5abfe5)
+* Merge branch 'main' into dev (c323065)
+* Merge branch 'dev' of https://github.com/sni10/lm-studio-pwa-client into dev (2d9ab95)
+* feat: улучшено копирование сообщений в буфер обмена (8e3e285)
