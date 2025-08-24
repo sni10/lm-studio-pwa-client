@@ -316,19 +316,38 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 10px;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             user-select: none;
             -webkit-user-select: none;
+            position: relative;
+            overflow: hidden;
         }
 
         .copy-btn:hover {
             background: var(--accent);
             color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .copy-btn.copied {
             background: var(--success);
             color: white;
+            transform: scale(1.05);
+            box-shadow: 0 2px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .copy-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        .copy-btn.copied::after {
+            transform: translateX(100%);
         }
 
         .streaming-cursor {
@@ -627,6 +646,39 @@
 
         .chevron.expanded {
             transform: rotate(90deg);
+        }
+
+        /* Toast уведомления */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
         }
 
         /* Мобильные оптимизации */
@@ -1405,6 +1457,37 @@
             }
         }
 
+        function showToast(message, type = 'success', duration = 3000) {
+            // Удаляем существующий toast если есть
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Создаем новый toast
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            // Добавляем в DOM
+            document.body.appendChild(toast);
+            
+            // Показываем с анимацией
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+            
+            // Скрываем через duration
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
         function toggleTheme() {
             const body = document.body;
             const themeBtn = document.getElementById('themeBtn');
@@ -1430,26 +1513,46 @@
             const cleanText = textContent.replace(/\n\s*\n/g, '\n').trim();
             
             navigator.clipboard.writeText(cleanText).then(() => {
+                // Показываем toast уведомление
+                const wordCount = cleanText.trim().split(/\s+/).length;
+                showToast(`✅ Скопировано ${wordCount} слов в буфер обмена`, 'success', 2500);
+                
+                // Анимация кнопки
                 const btn = document.querySelector(`#msg-${messageId} .copy-btn`);
                 if (btn) {
                     const originalText = btn.textContent;
-                    btn.textContent = 'Скопировано!';
+                    btn.textContent = '✅';
                     btn.classList.add('copied');
+                    btn.style.transform = 'scale(1.1)';
                     
                     setTimeout(() => {
                         btn.textContent = originalText;
                         btn.classList.remove('copied');
-                    }, 2000);
+                        btn.style.transform = 'scale(1)';
+                    }, 1500);
                 }
             }).catch(err => {
                 console.error('Failed to copy text:', err);
+                
                 // Fallback для старых браузеров
-                const textArea = document.createElement('textarea');
-                textArea.value = cleanText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = cleanText;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-9999px';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    if (successful) {
+                        showToast('✅ Текст скопирован (fallback)', 'success', 2000);
+                    } else {
+                        showToast('❌ Не удалось скопировать текст', 'error', 3000);
+                    }
+                } catch (fallbackErr) {
+                    showToast('❌ Копирование не поддерживается', 'error', 3000);
+                }
             });
         }
 
