@@ -2,7 +2,6 @@ name: Release
 
 on:
   push:
-    branches: [ main ]
     tags: [ 'v*.*.*' ]
 
 permissions:
@@ -12,95 +11,7 @@ permissions:
   id-token: write
 
 jobs:
-  auto-version:
-    if: github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release)')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-    
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Configure Git
-      run: |
-        git config user.name "sni10"
-        git config user.email "sni10@users.noreply.github.com"
-        
-    - name: Determine version bump
-      id: version
-      run: |
-        # Get the last tag or default to v1.0.0
-        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
-        echo "Last tag: $LAST_TAG"
-        
-        # Extract version numbers (handle v1.0.0 format)
-        VERSION=${LAST_TAG#v}
-        IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
-        MAJOR=${VERSION_PARTS[0]:-1}
-        MINOR=${VERSION_PARTS[1]:-0}  
-        PATCH=${VERSION_PARTS[2]:-0}
-        
-        # Analyze commits since last tag or since initial commit
-        if [[ "$LAST_TAG" == "v1.0.0" ]] && ! git tag | grep -q "v1.0.0"; then
-          # No tags exist yet, analyze all commits
-          COMMITS=$(git log --oneline)
-        else
-          # Analyze commits since last tag
-          COMMITS=$(git log ${LAST_TAG}..HEAD --oneline || git log --oneline)
-        fi
-        
-        echo "Commits to analyze:"
-        echo "$COMMITS"
-        
-        # Determine bump type based on commit messages
-        if echo "$COMMITS" | grep -q -E "(BREAKING CHANGE|!:)"; then
-          MAJOR=$((MAJOR + 1))
-          MINOR=0
-          PATCH=0
-          BUMP_TYPE="major"
-        elif echo "$COMMITS" | grep -q -E "(^[a-f0-9]+ feat|^feat)"; then
-          MINOR=$((MINOR + 1))
-          PATCH=0
-          BUMP_TYPE="minor"
-        else
-          PATCH=$((PATCH + 1))
-          BUMP_TYPE="patch"
-        fi
-        
-        NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-        echo "New version: $NEW_VERSION"
-        echo "Bump type: $BUMP_TYPE"
-        
-        echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-        echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
-        
-    - name: Update version in HTML
-      run: |
-        # Add version meta tag to HTML
-        sed -i 's/<title>LM Studio Client<\/title>/<title>LM Studio Client<\/title>\n    <meta name="version" content="${{ steps.version.outputs.version }}">/' index.html
-        
-    - name: Create release commit
-      run: |
-        git add index.html
-        git commit -m "chore(release): bump to ${{ steps.version.outputs.version }}"
-        
-    - name: Create and push tag
-      run: |
-        git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}"
-        git push origin main
-        git push origin ${{ steps.version.outputs.version }}
-
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
       contents: write
