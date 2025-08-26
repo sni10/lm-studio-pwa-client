@@ -1250,7 +1250,7 @@
                 } catch (error) {
                     if (error.name === 'AbortError') {
                         // При прерывании сохраняем частичный ответ как есть
-                        this.finalizeStreamingMessage(assistantMessageId, 'Ответ прерван пользователем');
+                        this.handleAbortedMessage(assistantMessageId);
                     } else {
                         this.removeStreamingMessage(assistantMessageId);
                         this.addMessage('system', `Ошибка подключения: ${error.message}`);
@@ -1498,7 +1498,7 @@
                 }
             }
 
-            finalizeStreamingMessage(messageId, statusText = '') {
+            handleAbortedMessage(messageId) {
                 // Получаем текущий контент из streaming сообщения
                 const contentEl = document.getElementById(`content-${messageId}`);
                 const thinkingEl = document.getElementById(`thinking-content-${messageId}`);
@@ -1534,10 +1534,8 @@
                     this.updateEmptyState();
                 }
                 
-                // Добавляем статусное сообщение если нужно
-                if (statusText) {
-                    this.addMessage('system', statusText);
-                }
+                // Добавляем статусное сообщение о прерывании
+                this.addMessage('system', 'Ответ прерван пользователем');
             }
 
             addMessage(role, content) {
@@ -3203,7 +3201,7 @@
                 } catch (error) {
                     if (error.name === 'AbortError') {
                         // При прерывании сохраняем частичный ответ как есть
-                        this.finalizeStreamingMessage(assistantMessageId, 'Ответ прерван пользователем');
+                        this.handleAbortedMessage(assistantMessageId);
                     } else {
                         this.removeStreamingMessage(assistantMessageId);
                         this.addMessage('system', `Ошибка подключения: ${error.message}`);
@@ -3445,7 +3443,7 @@
                 }
             }
 
-            finalizeStreamingMessage(messageId, statusText = '') {
+            handleAbortedMessage(messageId) {
                 // Получаем текущий контент из streaming сообщения
                 const contentEl = document.getElementById(`content-${messageId}`);
                 const thinkingEl = document.getElementById(`thinking-content-${messageId}`);
@@ -3481,10 +3479,8 @@
                     this.updateEmptyState();
                 }
                 
-                // Добавляем статусное сообщение если нужно
-                if (statusText) {
-                    this.addMessage('system', statusText);
-                }
+                // Добавляем статусное сообщение о прерывании
+                this.addMessage('system', 'Ответ прерван пользователем');
             }
 
             addMessage(role, content) {
