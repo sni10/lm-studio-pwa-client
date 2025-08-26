@@ -100,28 +100,6 @@ Lightweight Progressive Web App client for [LM Studio](https://lmstudio.ai/) loc
 - Тема сохраняется автоматически в браузере
 - При проблемах: очистите localStorage сайта
 
-## Installation Options
-
-### 📦 **Простой запуск (рекомендуется)**
-```bash
-# Просто откройте файл в браузере
-open index.html
-# или запустите локальный сервер
-python -m http.server 8000
-```
-
-### 🐳 **Docker (опционально)**
-```dockerfile
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/
-EXPOSE 80
-```
-
-```bash
-docker build -t lm-studio-pwa .
-docker run -p 8080:80 lm-studio-pwa
-```
-
 ---
 
 *Simple, fast, and reliable LM Studio client that just works.*
