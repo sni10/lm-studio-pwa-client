@@ -95,4 +95,4 @@ public
 
 # Test results
 test-results/
-playwright-report/
+playwright-report/.idea/
