@@ -1184,7 +1184,22 @@
                     // Add files context to the message
                     const filesContext = this.uploadedFiles.map(file => {
                         if (file.textContent) {
-                            return `\n\nFile: ${file.name}\n\`\`\`\n${file.textContent}\n\`\`\``;
+                            // Определяем язык по расширению для подсветки синтаксиса
+                            const ext = file.name.split('.').pop().toLowerCase();
+                            const lang = {
+                                'js': 'javascript',
+                                'py': 'python', 
+                                'cpp': 'cpp',
+                                'java': 'java',
+                                'css': 'css',
+                                'html': 'html',
+                                'json': 'json',
+                                'md': 'markdown',
+                                'yml': 'yaml',
+                                'yaml': 'yaml'
+                            }[ext] || '';
+                            
+                            return `\n\n**Файл: ${file.name}**\n\`\`\`${lang}\n${file.textContent}\n\`\`\``;
                         }
                         return `\n\nFile: ${file.name} (${file.type})`;
                     }).join('');
@@ -3121,7 +3136,22 @@
                     // Add files context to the message
                     const filesContext = this.uploadedFiles.map(file => {
                         if (file.textContent) {
-                            return `\n\nFile: ${file.name}\n\`\`\`\n${file.textContent}\n\`\`\``;
+                            // Определяем язык по расширению для подсветки синтаксиса
+                            const ext = file.name.split('.').pop().toLowerCase();
+                            const lang = {
+                                'js': 'javascript',
+                                'py': 'python', 
+                                'cpp': 'cpp',
+                                'java': 'java',
+                                'css': 'css',
+                                'html': 'html',
+                                'json': 'json',
+                                'md': 'markdown',
+                                'yml': 'yaml',
+                                'yaml': 'yaml'
+                            }[ext] || '';
+                            
+                            return `\n\n**Файл: ${file.name}**\n\`\`\`${lang}\n${file.textContent}\n\`\`\``;
                         }
                         return `\n\nFile: ${file.name} (${file.type})`;
                     }).join('');
