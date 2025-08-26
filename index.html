@@ -908,7 +908,7 @@
             <div id="uploadedFilesContainer" class="uploaded-files" style="display: none;"></div>
             <div class="input-container">
                 <div class="file-upload-area">
-                    <input type="file" id="fileInput" multiple accept="image/*,.txt,.md,.json,.csv,.xml,.html,.js,.py,.cpp,.java,.css" style="display: none;" />
+                    <input type="file" id="fileInput" multiple accept=".txt,.md,.json,.csv,.xml,.html,.js,.py,.cpp,.java,.css,.yml,.yaml,.ini,.cfg,.log" style="display: none;" />
                     <button class="file-upload-btn" id="fileUploadBtn" onclick="document.getElementById('fileInput').click()" title="Загрузить файлы">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
@@ -1184,8 +1184,6 @@
                     const filesContext = this.uploadedFiles.map(file => {
                         if (file.textContent) {
                             return `\n\nFile: ${file.name}\n\`\`\`\n${file.textContent}\n\`\`\``;
-                        } else if (file.type.startsWith('image/')) {
-                            return `\n\nImage: ${file.name} (attached)`;
                         }
                         return `\n\nFile: ${file.name} (${file.type})`;
                     }).join('');
@@ -1233,10 +1231,11 @@
                         this.addMessage('system', `Ошибка: ${response.status} ${response.statusText}`);
                     }
                 } catch (error) {
-                    this.removeStreamingMessage(assistantMessageId);
                     if (error.name === 'AbortError') {
-                        this.addMessage('system', 'Запрос прерван пользователем');
+                        // При прерывании сохраняем частичный ответ как есть
+                        this.finalizeStreamingMessage(assistantMessageId, 'Ответ прерван пользователем');
                     } else {
+                        this.removeStreamingMessage(assistantMessageId);
                         this.addMessage('system', `Ошибка подключения: ${error.message}`);
                     }
                 } finally {
@@ -1482,6 +1481,48 @@
                 }
             }
 
+            finalizeStreamingMessage(messageId, statusText = '') {
+                // Получаем текущий контент из streaming сообщения
+                const contentEl = document.getElementById(`content-${messageId}`);
+                const thinkingEl = document.getElementById(`thinking-content-${messageId}`);
+                
+                let content = '';
+                let reasoning = '';
+                
+                if (contentEl) {
+                    // Убираем streaming cursor и получаем текст
+                    const cursor = contentEl.querySelector('.streaming-cursor');
+                    if (cursor) cursor.remove();
+                    content = contentEl.textContent || '';
+                }
+                
+                if (thinkingEl && thinkingEl.textContent) {
+                    reasoning = thinkingEl.textContent;
+                }
+                
+                // Если есть контент, сохраняем как сообщение ассистента
+                if (content.trim()) {
+                    this.messages.push({
+                        role: 'assistant',
+                        content: content.trim(),
+                        reasoning: reasoning,
+                        timestamp: messageId
+                    });
+                    
+                    // Удаляем streaming элементы
+                    const thinkingIndicator = document.getElementById(`thinking-${messageId}`);
+                    if (thinkingIndicator) thinkingIndicator.remove();
+                    
+                    this.saveHistory();
+                    this.updateEmptyState();
+                }
+                
+                // Добавляем статусное сообщение если нужно
+                if (statusText) {
+                    this.addMessage('system', statusText);
+                }
+            }
+
             addMessage(role, content) {
                 this.messages.push({
                     role,
@@ -1529,33 +1570,16 @@
                             id: Date.now() + Math.random()
                         };
                         
-                        // For text files, we store the text content
-                        if (file.type.startsWith('text/') || 
-                            file.name.endsWith('.txt') || 
-                            file.name.endsWith('.md') ||
-                            file.name.endsWith('.json') ||
-                            file.name.endsWith('.csv') ||
-                            file.name.endsWith('.xml') ||
-                            file.name.endsWith('.html') ||
-                            file.name.endsWith('.js') ||
-                            file.name.endsWith('.py') ||
-                            file.name.endsWith('.cpp') ||
-                            file.name.endsWith('.java') ||
-                            file.name.endsWith('.css')) {
-                            fileData.textContent = reader.result;
-                        }
+                        // Store text content for all files (since we only accept text files now)
+                        fileData.textContent = reader.result;
                         
                         resolve(fileData);
                     };
                     
                     reader.onerror = reject;
                     
-                    // Read as text for text files, as data URL for images
-                    if (file.type.startsWith('image/')) {
-                        reader.readAsDataURL(file);
-                    } else {
-                        reader.readAsText(file);
-                    }
+                    // Read all files as text
+                    reader.readAsText(file);
                 });
             }
 
@@ -1570,10 +1594,7 @@
                 container.style.display = 'flex';
                 container.innerHTML = this.uploadedFiles.map(file => `
                     <div class="file-item">
-                        ${file.type.startsWith('image/') ? 
-                            `<img src="${file.content}" class="file-preview" alt="${file.name}" />` : 
-                            '📄'
-                        }
+                        📄
                         <span class="file-name" title="${file.name}">${file.name}</span>
                         <button class="file-remove" onclick="client.removeFile('${file.id}')" title="Удалить">✕</button>
                     </div>
@@ -2823,7 +2844,7 @@
             <div id="uploadedFilesContainer" class="uploaded-files" style="display: none;"></div>
             <div class="input-container">
                 <div class="file-upload-area">
-                    <input type="file" id="fileInput" multiple accept="image/*,.txt,.md,.json,.csv,.xml,.html,.js,.py,.cpp,.java,.css" style="display: none;" />
+                    <input type="file" id="fileInput" multiple accept=".txt,.md,.json,.csv,.xml,.html,.js,.py,.cpp,.java,.css,.yml,.yaml,.ini,.cfg,.log" style="display: none;" />
                     <button class="file-upload-btn" id="fileUploadBtn" onclick="document.getElementById('fileInput').click()" title="Загрузить файлы">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
@@ -3099,8 +3120,6 @@
                     const filesContext = this.uploadedFiles.map(file => {
                         if (file.textContent) {
                             return `\n\nFile: ${file.name}\n\`\`\`\n${file.textContent}\n\`\`\``;
-                        } else if (file.type.startsWith('image/')) {
-                            return `\n\nImage: ${file.name} (attached)`;
                         }
                         return `\n\nFile: ${file.name} (${file.type})`;
                     }).join('');
@@ -3148,10 +3167,11 @@
                         this.addMessage('system', `Ошибка: ${response.status} ${response.statusText}`);
                     }
                 } catch (error) {
-                    this.removeStreamingMessage(assistantMessageId);
                     if (error.name === 'AbortError') {
-                        this.addMessage('system', 'Запрос прерван пользователем');
+                        // При прерывании сохраняем частичный ответ как есть
+                        this.finalizeStreamingMessage(assistantMessageId, 'Ответ прерван пользователем');
                     } else {
+                        this.removeStreamingMessage(assistantMessageId);
                         this.addMessage('system', `Ошибка подключения: ${error.message}`);
                     }
                 } finally {
@@ -3391,6 +3411,48 @@
                 }
             }
 
+            finalizeStreamingMessage(messageId, statusText = '') {
+                // Получаем текущий контент из streaming сообщения
+                const contentEl = document.getElementById(`content-${messageId}`);
+                const thinkingEl = document.getElementById(`thinking-content-${messageId}`);
+                
+                let content = '';
+                let reasoning = '';
+                
+                if (contentEl) {
+                    // Убираем streaming cursor и получаем текст
+                    const cursor = contentEl.querySelector('.streaming-cursor');
+                    if (cursor) cursor.remove();
+                    content = contentEl.textContent || '';
+                }
+                
+                if (thinkingEl && thinkingEl.textContent) {
+                    reasoning = thinkingEl.textContent;
+                }
+                
+                // Если есть контент, сохраняем как сообщение ассистента
+                if (content.trim()) {
+                    this.messages.push({
+                        role: 'assistant',
+                        content: content.trim(),
+                        reasoning: reasoning,
+                        timestamp: messageId
+                    });
+                    
+                    // Удаляем streaming элементы
+                    const thinkingIndicator = document.getElementById(`thinking-${messageId}`);
+                    if (thinkingIndicator) thinkingIndicator.remove();
+                    
+                    this.saveHistory();
+                    this.updateEmptyState();
+                }
+                
+                // Добавляем статусное сообщение если нужно
+                if (statusText) {
+                    this.addMessage('system', statusText);
+                }
+            }
+
             addMessage(role, content) {
                 this.messages.push({
                     role,
@@ -3438,33 +3500,16 @@
                             id: Date.now() + Math.random()
                         };
                         
-                        // For text files, we store the text content
-                        if (file.type.startsWith('text/') || 
-                            file.name.endsWith('.txt') || 
-                            file.name.endsWith('.md') ||
-                            file.name.endsWith('.json') ||
-                            file.name.endsWith('.csv') ||
-                            file.name.endsWith('.xml') ||
-                            file.name.endsWith('.html') ||
-                            file.name.endsWith('.js') ||
-                            file.name.endsWith('.py') ||
-                            file.name.endsWith('.cpp') ||
-                            file.name.endsWith('.java') ||
-                            file.name.endsWith('.css')) {
-                            fileData.textContent = reader.result;
-                        }
+                        // Store text content for all files (since we only accept text files now)
+                        fileData.textContent = reader.result;
                         
                         resolve(fileData);
                     };
                     
                     reader.onerror = reject;
                     
-                    // Read as text for text files, as data URL for images
-                    if (file.type.startsWith('image/')) {
-                        reader.readAsDataURL(file);
-                    } else {
-                        reader.readAsText(file);
-                    }
+                    // Read all files as text
+                    reader.readAsText(file);
                 });
             }
 
@@ -3479,10 +3524,7 @@
                 container.style.display = 'flex';
                 container.innerHTML = this.uploadedFiles.map(file => `
                     <div class="file-item">
-                        ${file.type.startsWith('image/') ? 
-                            `<img src="${file.content}" class="file-preview" alt="${file.name}" />` : 
-                            '📄'
-                        }
+                        📄
                         <span class="file-name" title="${file.name}">${file.name}</span>
                         <button class="file-remove" onclick="client.removeFile('${file.id}')" title="Удалить">✕</button>
                     </div>
