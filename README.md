@@ -42,7 +42,7 @@ Lightweight Progressive Web App client for [LM Studio](https://lmstudio.ai/) loc
 - **Max tokens**: `2048`
 - **Temperature**: `0.7`
 
-## What's New in v1.5.2
+## What's New in v1.5.4
 
 ### 🎯 Major Features (v1.5.0)
 - 🧠 **Smart Auto-scroll** - Free navigation while responses stream
@@ -51,7 +51,12 @@ Lightweight Progressive Web App client for [LM Studio](https://lmstudio.ai/) loc
 - 📁 **File Upload Support** - Text files, code, markdown with syntax highlighting
 - 🤖 **Enhanced Thinking Process** - Universal parsing for Qwen3 and other models
 
-### 🔧 Recent Fixes (v1.5.1-v1.5.2)
+### 📚 **New in v1.5.4**
+- 📖 **Comprehensive FAQ** - Detailed troubleshooting and usage guide
+- 🐳 **Docker Support** - Ready-to-use containerization with Dockerfile
+- 📋 **Updated Documentation** - Complete feature coverage and installation options
+
+### 🔧 **Bug Fixes (v1.5.1-v1.5.3)**
 - 🛠️ **Interrupt Behavior** - Partial responses preserved in conversation history
 - 📄 **File Formatting** - Proper syntax highlighting and markdown display
 - ⚙️ **GitHub Actions** - Fixed auto-versioning and release workflows
